@@ -10,6 +10,7 @@ AGE_SECONDS="$((AGE_DAYS * 24 * 60 * 60))"
 # Lifecycle scripts are a major npm supply-chain execution path. Keep them off
 # globally by default; set STRICT_INSTALL_SCRIPTS=0 when a project needs them.
 STRICT_INSTALL_SCRIPTS="${STRICT_INSTALL_SCRIPTS:-1}"
+SOCKET_FIREWALL_ENABLED=0
 
 # This baseline intentionally supports only the latest stable major versions as
 # of this gist revision. Update these gates when bumping the gist.
@@ -41,9 +42,9 @@ confirm_intent() {
 [harden] This script is for individual developer machines that want user-level
 [harden] package-manager hardening defaults.
 [harden]
-[harden] It may install the current Socket Firewall wrapper globally when npm/node
-[harden] are available. It will update user config for npm, pnpm, Yarn shell
-[harden] defaults, and Bun, and it will add Socket Firewall shell aliases for
+[harden] It will update user config for npm, pnpm, Yarn shell defaults, and Bun.
+[harden] It can optionally install the current Socket Firewall wrapper globally
+[harden] when npm/node are available, then add Socket Firewall shell aliases for
 [harden] JavaScript, Python, and Rust package-manager entrypoints.
 [harden]
 [harden] These are defaults, not mandatory controls; project config, environment
@@ -58,6 +59,45 @@ EOF
   case "$answer" in
     y|Y|yes|YES) ;;
     *) fail "aborted" ;;
+  esac
+}
+
+confirm_socket_firewall() {
+  local answer setting
+  setting="${HARDEN_INSTALL_SOCKET_FIREWALL:-}"
+
+  case "$setting" in
+    1|true|TRUE|yes|YES)
+      SOCKET_FIREWALL_ENABLED=1
+      return
+      ;;
+    0|false|FALSE|no|NO)
+      SOCKET_FIREWALL_ENABLED=0
+      log "skipping Socket Firewall install and aliases by request"
+      return
+      ;;
+    "")
+      ;;
+    *)
+      fail "HARDEN_INSTALL_SOCKET_FIREWALL must be 1 or 0"
+      ;;
+  esac
+
+  if [ "${HARDEN_ASSUME_YES:-0}" = "1" ]; then
+    SOCKET_FIREWALL_ENABLED=1
+    return
+  fi
+
+  printf '[harden] Install Socket Firewall wrapper and shell aliases? [y/N] '
+  read -r answer
+  case "$answer" in
+    y|Y|yes|YES)
+      SOCKET_FIREWALL_ENABLED=1
+      ;;
+    *)
+      SOCKET_FIREWALL_ENABLED=0
+      log "skipping Socket Firewall install and aliases by request"
+      ;;
   esac
 }
 
@@ -180,6 +220,7 @@ run_pm_if_ready() {
 }
 
 confirm_intent
+confirm_socket_firewall
 preflight_package_managers
 
 CREATED_CONFIG_FILES="
@@ -347,11 +388,15 @@ upsert_bunfig_install() {
 # and cargo. This alias set also includes npx, bun, and bunx as JavaScript
 # install/execute entrypoints; verify current sfw behavior locally if those
 # wrappers are important to your workflow.
-if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
-  log "installing Socket Firewall wrapper"
-  env NPM_CONFIG_IGNORE_SCRIPTS=true npm install -g sfw --ignore-scripts=true || true
+if [ "$SOCKET_FIREWALL_ENABLED" = "1" ]; then
+  if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
+    log "installing Socket Firewall wrapper"
+    env NPM_CONFIG_IGNORE_SCRIPTS=true npm install -g sfw --ignore-scripts=true || true
+  else
+    log "skipping Socket Firewall install because npm/node is not available"
+  fi
 else
-  log "skipping Socket Firewall install because npm/node is not available"
+  log "skipping Socket Firewall install"
 fi
 
 sfw_aliases='
@@ -367,13 +412,17 @@ alias pip="sfw pip"
 alias pip3="sfw pip3"
 alias cargo="sfw cargo"'
 
-if command -v sfw >/dev/null 2>&1; then
-  write_managed_block "$HOME/.bashrc" "Socket Firewall aliases" "$sfw_aliases"
-  if [ -f "$HOME/.zshrc" ]; then
-    write_managed_block "$HOME/.zshrc" "Socket Firewall aliases" "$sfw_aliases"
+if [ "$SOCKET_FIREWALL_ENABLED" = "1" ]; then
+  if command -v sfw >/dev/null 2>&1; then
+    write_managed_block "$HOME/.bashrc" "Socket Firewall aliases" "$sfw_aliases"
+    if [ -f "$HOME/.zshrc" ]; then
+      write_managed_block "$HOME/.zshrc" "Socket Firewall aliases" "$sfw_aliases"
+    fi
+  else
+    log "skipping Socket Firewall aliases because sfw is not available"
   fi
 else
-  log "skipping Socket Firewall aliases because sfw is not available"
+  log "skipping Socket Firewall aliases"
 fi
 
 # npm policy:
@@ -507,7 +556,7 @@ verify_sfw_command() {
   fi
 }
 
-if command -v sfw >/dev/null 2>&1; then
+if [ "$SOCKET_FIREWALL_ENABLED" = "1" ] && command -v sfw >/dev/null 2>&1; then
   log "Socket Firewall wrapper verification"
   sfw --help | sed -n '1,8p' || true
   verify_sfw_command npm --version
