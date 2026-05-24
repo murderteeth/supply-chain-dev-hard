@@ -2,19 +2,17 @@
 
 Developer-machine hardening defaults for JavaScript package managers and optional Socket Firewall aliases.
 
-This repository maintains [harden-dev-env.sh](./harden-dev-env.sh), a security-sensitive Bash script that writes user-level supply-chain hardening defaults. Users may run it against their real home directory, so changes should stay small, auditable, and covered by the isolated scenario harness.
+This repository maintains [harden-dev-env.sh](./harden-dev-env.sh), a security-sensitive Bash script that writes user-level supply-chain hardening defaults. Linux and macOS compatible.
 
 ## How to Install
 
-This is the recommended install command for developers running the script from GitHub. Publish or share the whole snippet below, with `url` pinned to the reviewed commit or tag and `sha256` set to that exact copy of [harden-dev-env.sh](./harden-dev-env.sh). Developers should copy and paste the full block into their terminal.
-
-The snippet downloads the script to a temporary file, verifies its SHA256, then runs it. The normal confirmation prompt still appears unless the caller explicitly sets `HARDEN_ASSUME_YES=1`.
+This is the recommended install command for your development environment. Copy the whole snippet below, paste the full block into your terminal. The snippet downloads [harden-dev-env.sh](./harden-dev-env.sh) to a temporary file, verifies its SHA256, then runs it.
 
 ```bash
 (
   set -euo pipefail
 
-  url='https://raw.githubusercontent.com/murderteeth/supply-chain-dev-hard/7e80d8f755239e08e9415902fa9f2bf9669465f1/harden-dev-env.sh'
+  url='https://cdn.jsdelivr.net/gh/murderteeth/supply-chain-dev-hard@7e80d8f755239e08e9415902fa9f2bf9669465f1/harden-dev-env.sh'
   sha256='651ba8128fa95c67bc7388179fe91f5ebc018c2dc83d0e1d89aa68b09322ddf7'
   tmp="$(mktemp)"
   trap 'rm -f "$tmp"' EXIT
@@ -32,7 +30,7 @@ The snippet downloads the script to a temporary file, verifies its SHA256, then 
 )
 ```
 
-Use a raw URL pinned to a specific commit or tag and update `sha256` whenever `harden-dev-env.sh` changes.
+Use a pinned CDN URL for a specific commit or tag and update `sha256` whenever `harden-dev-env.sh` changes.
 
 ## What It Does
 
@@ -179,7 +177,7 @@ Release process:
 3. Run macOS compatibility scenarios: `bash tests/supply-chain-hardening/run-scenarios-on-macos.sh`.
 4. Review the script diff: `git diff -- harden-dev-env.sh`.
 5. Generate the SHA256: `sha256sum harden-dev-env.sh` or `shasum -a 256 harden-dev-env.sh`.
-6. Update the pinned bootstrap snippet with the new immutable raw URL and SHA256.
+6. Update the pinned bootstrap snippet with the new pinned CDN URL and SHA256.
 7. Tag or pin to an immutable commit.
 8. Publish only after explicit human confirmation.
 
