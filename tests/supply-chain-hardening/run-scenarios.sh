@@ -75,7 +75,7 @@ case "${1:-}" in
     printf '11.10.0\n'
     ;;
   install)
-    if [ "${2:-}" = "-g" ] && [ "${3:-}" = "sfw" ]; then
+    if [ "${2:-}" = "-g" ] && [ "${3:-}" = "sfw" ] && [ "${4:-}" = "--ignore-scripts=true" ] && [ "${5:-}" = "--no-audit" ] && [ "${NPM_CONFIG_IGNORE_SCRIPTS:-}" = "true" ] && [ "${NPM_CONFIG_AUDIT:-}" = "false" ]; then
       cat > "$(dirname "$0")/sfw" <<'SFW'
 #!/usr/bin/env bash
 set -euo pipefail
