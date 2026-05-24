@@ -329,7 +329,7 @@ scenario_prompt_yes_relaxed_custom_age() {
   log="$WORK_DIR/relaxed.log"
   install_stubs "$bin_dir"
 
-  printf 'yes\n' | run_script "$home" "$bin_dir" AGE_DAYS=3 STRICT_INSTALL_SCRIPTS=0 > "$log" 2>&1
+  printf 'yes\nn\n' | run_script "$home" "$bin_dir" AGE_DAYS=3 STRICT_INSTALL_SCRIPTS=0 > "$log" 2>&1
 
   assert_contains "$home/.npmrc" "min-release-age=3"
   assert_contains "$home/.npmrc" "ignore-scripts=false"
@@ -341,6 +341,49 @@ scenario_prompt_yes_relaxed_custom_age() {
   assert_contains "$home/.config/.bunfig.toml" "ignoreScripts = false"
 
   pass "interactive yes with custom age and relaxed scripts"
+}
+
+scenario_socket_firewall_decline() {
+  local home bin_dir log
+  home="$(new_home socket-decline)"
+  bin_dir="$WORK_DIR/socket-decline/bin"
+  log="$WORK_DIR/socket-decline.log"
+  install_stubs "$bin_dir"
+
+  printf 'yes\nn\n' | run_script "$home" "$bin_dir" > "$log" 2>&1
+
+  assert_contains "$log" "Install Socket Firewall wrapper and shell aliases? [y/N]"
+  assert_contains "$log" "skipping Socket Firewall install and aliases by request"
+  assert_contains "$log" "skipping Socket Firewall install"
+  assert_contains "$log" "skipping Socket Firewall aliases"
+  assert_no_file "$bin_dir/sfw"
+  assert_not_contains "$home/.bashrc" "# >>> Socket Firewall aliases >>>"
+  assert_contains "$home/.bashrc" "# >>> Yarn hardening defaults >>>"
+  assert_contains "$home/.npmrc" "ignore-scripts=true"
+  assert_not_contains "$log" "Socket Firewall wrapper verification"
+
+  pass "Socket Firewall install can be declined"
+}
+
+scenario_socket_firewall_env_skip() {
+  local home bin_dir log
+  home="$(new_home socket-env-skip)"
+  bin_dir="$WORK_DIR/socket-env-skip/bin"
+  log="$WORK_DIR/socket-env-skip.log"
+  install_stubs "$bin_dir"
+
+  run_script "$home" "$bin_dir" HARDEN_ASSUME_YES=1 HARDEN_INSTALL_SOCKET_FIREWALL=0 > "$log" 2>&1
+
+  assert_contains "$log" "skipping Socket Firewall install and aliases by request"
+  assert_contains "$log" "skipping Socket Firewall install"
+  assert_contains "$log" "skipping Socket Firewall aliases"
+  assert_no_file "$bin_dir/sfw"
+  assert_not_contains "$home/.bashrc" "# >>> Socket Firewall aliases >>>"
+  assert_contains "$home/.bashrc" "# >>> Yarn hardening defaults >>>"
+  assert_contains "$home/.npmrc" "ignore-scripts=true"
+  assert_not_contains "$log" "Socket Firewall wrapper verification"
+
+  pass "Socket Firewall can be skipped in noninteractive runs"
 }
 
 scenario_existing_config_idempotent() {
@@ -502,6 +545,8 @@ main() {
     scenario_baseline
     scenario_prompt_abort
     scenario_prompt_yes_relaxed_custom_age
+    scenario_socket_firewall_decline
+    scenario_socket_firewall_env_skip
     scenario_existing_config_idempotent
     scenario_missing_tools
     scenario_no_xdg_config_home

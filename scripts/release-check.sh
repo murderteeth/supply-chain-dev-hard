@@ -26,8 +26,8 @@ commit_ref() {
 bash -n "$script"
 bash -n "$repo_root/tests/supply-chain-hardening/run-scenarios.sh"
 
-"$repo_root/tests/supply-chain-hardening/run-docker.sh"
-"$repo_root/tests/supply-chain-hardening/run-macos-compat.sh"
+"$repo_root/tests/supply-chain-hardening/run-scenarios-on-linux.sh"
+"$repo_root/tests/supply-chain-hardening/run-scenarios-on-macos.sh"
 
 sha256="$(hash_file)"
 ref="$(commit_ref)"

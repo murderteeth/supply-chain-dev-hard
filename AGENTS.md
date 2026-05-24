@@ -25,16 +25,16 @@ After changing shell scripts, run:
 ```bash
 bash -n harden-dev-env.sh
 bash -n tests/supply-chain-hardening/run-scenarios.sh
-bash -n tests/supply-chain-hardening/run-docker.sh
-bash -n tests/supply-chain-hardening/run-macos-compat.sh
+bash -n tests/supply-chain-hardening/run-scenarios-on-linux.sh
+bash -n tests/supply-chain-hardening/run-scenarios-on-macos.sh
 bash -n scripts/release-check.sh
 ```
 
 After behavior changes, run:
 
 ```bash
-bash tests/supply-chain-hardening/run-docker.sh
-bash tests/supply-chain-hardening/run-macos-compat.sh
+bash tests/supply-chain-hardening/run-scenarios-on-linux.sh
+bash tests/supply-chain-hardening/run-scenarios-on-macos.sh
 ```
 
 For release readiness, run:
