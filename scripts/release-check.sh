@@ -31,7 +31,7 @@ bash -n "$repo_root/tests/supply-chain-hardening/run-scenarios.sh"
 
 sha256="$(hash_file)"
 ref="$(commit_ref)"
-remote_url="${BOOTSTRAP_RAW_URL:-https://raw.githubusercontent.com/YOUR_ORG/supply-chain-dev-hardening/$ref/harden-dev-env.sh}"
+remote_url="${BOOTSTRAP_RAW_URL:-https://raw.githubusercontent.com/YOUR_ORG/supply-chain-dev-hard/$ref/harden-dev-env.sh}"
 
 cat <<EOF
 SHA256: $sha256

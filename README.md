@@ -10,7 +10,7 @@ Pin the raw URL to an immutable commit and verify the script hash before executi
 (
   set -euo pipefail
 
-  url='https://raw.githubusercontent.com/YOUR_ORG/supply-chain-dev-hardening/COMMIT_SHA/harden-dev-env.sh'
+  url='https://raw.githubusercontent.com/YOUR_ORG/supply-chain-dev-hard/COMMIT_SHA/harden-dev-env.sh'
   sha256='d72eb97b4c353b6ead9f8f9a7aaf76fd3a6baf440204cc56f0bcef78e0d37b94'
   tmp="$(mktemp)"
   trap 'rm -f "$tmp"' EXIT
