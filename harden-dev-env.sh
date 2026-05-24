@@ -377,6 +377,8 @@ upsert_bunfig_install() {
 # Socket Firewall:
 # - install the `sfw` wrapper from npm when npm is already available
 # - keep lifecycle scripts disabled during the global install
+# - disable audit only for that global install to avoid npm's unsupported
+#   global-audit warning when the user's npm config has audit=true
 # - add aliases so ordinary commands like `npm install` become `sfw npm install`
 # - use env to bypass existing aliases/functions during npm's global install
 #
@@ -391,7 +393,7 @@ upsert_bunfig_install() {
 if [ "$SOCKET_FIREWALL_ENABLED" = "1" ]; then
   if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
     log "installing Socket Firewall wrapper"
-    env NPM_CONFIG_IGNORE_SCRIPTS=true npm install -g sfw --ignore-scripts=true || true
+    env NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_AUDIT=false npm install -g sfw --ignore-scripts=true --no-audit || true
   else
     log "skipping Socket Firewall install because npm/node is not available"
   fi

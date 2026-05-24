@@ -189,7 +189,7 @@ Release process:
 - Bun policy requires Bun 1.3+.
 - Package managers are not installed or updated by this script. Install npm, pnpm, Yarn, or Bun through your normal trusted path.
 - Verification avoids Corepack provisioning: package-manager probes run with Corepack network access disabled, so a Corepack shim must already have its exact package-manager version prepared or that tool's preflight/verification is skipped.
-- Socket Firewall is installed only after confirmation, only when npm/node are already available, and with lifecycle scripts disabled.
+- Socket Firewall is installed only after confirmation, only when npm/node are already available, with lifecycle scripts disabled, and with npm audit disabled only for that global wrapper install.
 - Socket Firewall verification runs only when Socket Firewall is enabled and confirms wrapper invocation, not malware blocking; aliases take effect in new shells or after sourcing the updated shell rc file.
 - npm `before` is an absolute publish-date cutoff and takes precedence over `min-release-age` when both are set in the same or higher-priority npm config. This script leaves existing `before` settings intact as intentional user policy and prints the active value during verification.
 - `ignore-scripts=true` is intentionally strict and may require per-project exceptions for packages that build native binaries.
