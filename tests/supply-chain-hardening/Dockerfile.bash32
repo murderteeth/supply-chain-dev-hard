@@ -1,0 +1,36 @@
+FROM debian:bookworm-slim
+
+ARG BASH32_VERSION=3.2.57
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    bison \
+    build-essential \
+    ca-certificates \
+    coreutils \
+    curl \
+    findutils \
+    gawk \
+    grep \
+    make \
+    sed \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSLO "https://ftp.gnu.org/gnu/bash/bash-${BASH32_VERSION}.tar.gz" \
+  && tar -xzf "bash-${BASH32_VERSION}.tar.gz" \
+  && cd "bash-${BASH32_VERSION}" \
+  && ./configure --prefix=/opt/bash-3.2 --without-bash-malloc \
+  && make -j"$(nproc)" \
+  && make install \
+  && /opt/bash-3.2/bin/bash --version \
+  && cd / \
+  && rm -rf "bash-${BASH32_VERSION}" "bash-${BASH32_VERSION}.tar.gz"
+
+COPY run-scenarios.sh /usr/local/bin/run-scenarios
+RUN chmod +x /usr/local/bin/run-scenarios
+
+ENV SCRIPT_BASH=/opt/bash-3.2/bin/bash
+
+WORKDIR /repo
+ENTRYPOINT ["/usr/local/bin/run-scenarios"]

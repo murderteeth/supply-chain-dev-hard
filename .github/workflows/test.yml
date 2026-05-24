@@ -1,0 +1,34 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: |
+          bash -n harden-dev-env.sh
+          bash -n tests/supply-chain-hardening/run-scenarios.sh
+          bash -n tests/supply-chain-hardening/run-docker.sh
+          bash -n tests/supply-chain-hardening/run-macos-compat.sh
+          bash -n scripts/release-check.sh
+
+  docker-scenarios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Standard Docker scenarios
+        run: bash tests/supply-chain-hardening/run-docker.sh
+
+  bash32-compat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bash 3.2 compatibility scenarios
+        run: bash tests/supply-chain-hardening/run-macos-compat.sh
