@@ -12,8 +12,8 @@ This is the recommended install command for your development environment. Copy t
 (
   set -euo pipefail
 
-  url='https://cdn.jsdelivr.net/gh/murderteeth/supply-chain-dev-hard@v0.1.0/harden-dev-env.sh'
-  sha256='651ba8128fa95c67bc7388179fe91f5ebc018c2dc83d0e1d89aa68b09322ddf7'
+  url='https://cdn.jsdelivr.net/gh/murderteeth/supply-chain-dev-hard@v0.1.1/harden-dev-env.sh'
+  sha256='138ce71314fc3f7f2e5b93eefa8ae9371c36b937a9941f11cebed62ebd77935f'
   tmp="$(mktemp)"
   trap 'rm -f "$tmp"' EXIT
   curl -fsSL "$url" -o "$tmp"
