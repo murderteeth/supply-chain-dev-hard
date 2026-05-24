@@ -1,5 +1,4 @@
-# Supply Chain Dev Hardening
-
+# Supply Chain Dev Hard
 Developer-machine hardening defaults for JavaScript package managers and optional Socket Firewall aliases.
 
 This repository maintains [harden-dev-env.sh](./harden-dev-env.sh), a security-sensitive Bash script that writes user-level supply-chain hardening defaults. Linux and macOS compatible.
