@@ -15,20 +15,20 @@ jobs:
         run: |
           bash -n harden-dev-env.sh
           bash -n tests/supply-chain-hardening/run-scenarios.sh
-          bash -n tests/supply-chain-hardening/run-docker.sh
-          bash -n tests/supply-chain-hardening/run-macos-compat.sh
+          bash -n tests/supply-chain-hardening/run-scenarios-on-linux.sh
+          bash -n tests/supply-chain-hardening/run-scenarios-on-macos.sh
           bash -n scripts/release-check.sh
 
   docker-scenarios:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Standard Docker scenarios
-        run: bash tests/supply-chain-hardening/run-docker.sh
+      - name: Linux scenarios
+        run: bash tests/supply-chain-hardening/run-scenarios-on-linux.sh
 
   bash32-compat:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Bash 3.2 compatibility scenarios
-        run: bash tests/supply-chain-hardening/run-macos-compat.sh
+      - name: macOS compatibility scenarios
+        run: bash tests/supply-chain-hardening/run-scenarios-on-macos.sh
