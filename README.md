@@ -4,6 +4,36 @@ Developer-machine hardening defaults for JavaScript package managers and optiona
 
 This repository maintains [harden-dev-env.sh](./harden-dev-env.sh), a security-sensitive Bash script that writes user-level supply-chain hardening defaults. Users may run it against their real home directory, so changes should stay small, auditable, and covered by the isolated scenario harness.
 
+## How to Install
+
+This is the recommended install command for developers running the script from GitHub. Publish or share the whole snippet below, with `url` pinned to the reviewed commit or tag and `sha256` set to that exact copy of [harden-dev-env.sh](./harden-dev-env.sh). Developers should copy and paste the full block into their terminal.
+
+The snippet downloads the script to a temporary file, verifies its SHA256, then runs it. The normal confirmation prompt still appears unless the caller explicitly sets `HARDEN_ASSUME_YES=1`.
+
+```bash
+(
+  set -euo pipefail
+
+  url='https://raw.githubusercontent.com/murderteeth/supply-chain-dev-hard/7e80d8f755239e08e9415902fa9f2bf9669465f1/harden-dev-env.sh'
+  sha256='651ba8128fa95c67bc7388179fe91f5ebc018c2dc83d0e1d89aa68b09322ddf7'
+  tmp="$(mktemp)"
+  trap 'rm -f "$tmp"' EXIT
+  curl -fsSL "$url" -o "$tmp"
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$sha256" "$tmp" | sha256sum -c -
+  elif command -v shasum >/dev/null 2>&1; then
+    actual="$(shasum -a 256 "$tmp" | awk '{print $1}')"
+    [ "$actual" = "$sha256" ]
+  else
+    printf 'ERROR: need sha256sum or shasum\n' >&2
+    exit 1
+  fi
+  bash "$tmp"
+)
+```
+
+Use a raw URL pinned to a specific commit or tag and update `sha256` whenever `harden-dev-env.sh` changes.
+
 ## What It Does
 
 The script writes idempotent user-level baseline policy for npm, pnpm, Yarn, and Bun where each tool exposes a suitable user-level control. It assumes users already install and update package managers through their normal trusted path.
@@ -152,34 +182,6 @@ Release process:
 6. Update the pinned bootstrap snippet with the new immutable raw URL and SHA256.
 7. Tag or pin to an immutable commit.
 8. Publish only after explicit human confirmation.
-
-## Pinned Bootstrap
-
-Pin the raw URL to an immutable commit and verify the script hash before executing it:
-
-```bash
-(
-  set -euo pipefail
-
-  url='https://raw.githubusercontent.com/YOUR_ORG/supply-chain-dev-hard/COMMIT_SHA/harden-dev-env.sh'
-  sha256='651ba8128fa95c67bc7388179fe91f5ebc018c2dc83d0e1d89aa68b09322ddf7'
-  tmp="$(mktemp)"
-  trap 'rm -f "$tmp"' EXIT
-  curl -fsSL "$url" -o "$tmp"
-  if command -v sha256sum >/dev/null 2>&1; then
-    printf '%s  %s\n' "$sha256" "$tmp" | sha256sum -c -
-  elif command -v shasum >/dev/null 2>&1; then
-    actual="$(shasum -a 256 "$tmp" | awk '{print $1}')"
-    [ "$actual" = "$sha256" ]
-  else
-    printf 'ERROR: need sha256sum or shasum\n' >&2
-    exit 1
-  fi
-  bash "$tmp"
-)
-```
-
-Use a raw URL pinned to a specific commit or tag and update `sha256` whenever `harden-dev-env.sh` changes.
 
 ## Notes
 
