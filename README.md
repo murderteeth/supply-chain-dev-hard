@@ -29,8 +29,6 @@ This is the recommended install command for your development environment. Copy t
 )
 ```
 
-Use a pinned CDN URL for a specific commit or tag and update `sha256` whenever `harden-dev-env.sh` changes.
-
 ## What It Does
 
 The script writes idempotent user-level baseline policy for npm, pnpm, Yarn, and Bun where each tool exposes a suitable user-level control. It assumes users already install and update package managers through their normal trusted path.
